@@ -1,12 +1,17 @@
 import processing.serial.*;
 
-///import cc.arduino.*;
+import cc.arduino.*;
 
-//Arduino arduino;
+Arduino arduino;
+
+int sensorPin1 = 0;
+int sensorPin2 = 1;
 
 float prevRowR = 0;
 
 float prevRowL = 0;
+float rowR = 0;
+float rowL = 0;
 
 ArrayList <Goods> goods;
 ArrayList <Bads> bads;
@@ -20,13 +25,12 @@ float countDown = 200;
 
 void setup() {
   size(800,800);
-  
+  arduino = new Arduino(this, Arduino.list()[0], 57600);
   goods = new ArrayList();
-   bads = new ArrayList();
-   patrollers = new ArrayList();
+  bads = new ArrayList();
+  patrollers = new ArrayList();
   
   boat = new Boat();
-  //arduino = new Arduino(this, Arduino.list()[0], 57600);
   boat.init();
   
   for(int i = 0; i < 3; i ++){
@@ -67,16 +71,14 @@ void draw() {
   background(off);
   stroke(on);
   
-  
-  if(mouseX - prevRowL > 0) {
-     float rowamt = mouseX - prevRowL;
-     rowamt = map(rowamt,0,width,0,10);
+  arduino();
+  if(rowL - prevRowL > 0) {
+     float rowamt = rowL - prevRowL;
      boat.row(rowamt,0);
   }
   
-   if(mouseY - prevRowR > 0) {
-     float rowamt = mouseY - prevRowR;
-     rowamt = map(rowamt,0,height,0,10);
+   if(rowR - prevRowR > 0) {
+     float rowamt = rowR - prevRowR;
      boat.row(0,rowamt);
   }
   
@@ -96,8 +98,8 @@ void draw() {
   
   
   boat.render();
-  prevRowL = mouseX;
-  prevRowR = mouseY;
+  prevRowL = rowL;
+  prevRowR = rowR;
   
   
   
@@ -139,5 +141,24 @@ void keyPressed() {
   } else {
     boat.row(0,10);
   }
+}
+
+void arduino() {
+  float val1 = arduino.analogRead( sensorPin1 );
+  float val2 = arduino.analogRead( sensorPin2 );
+  
+  val1 = map(val1, 450, 380, 10, 0);
+  val1 = constrain(val1, 0, 10);
+  
+  val2 = map( val2, 500, 300, 10, 0 );
+  val2 = constrain( val2, 0, 10 );
+  
+  println( "mapped flex sensor 1: " + val1 );
+  println( "mapped flex sensor 2: " + val2 );
+  
+  rowR = val1;
+  rowL = val2;
+  
+  
 }
 
