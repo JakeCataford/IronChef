@@ -1,0 +1,1 @@
+Put the 'dds.8bi' file in your Photoshop/Plugins folder.
